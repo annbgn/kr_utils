@@ -5,8 +5,17 @@ from typing import Iterable
 import os
 from termcolor import colored
 import copy
+import argparse
 
 os.system("color")
+
+
+parser = argparse.ArgumentParser(description="Process some integers.")
+parser.add_argument(
+    "--verbose", "-v", help="show hypotheses generation", default=0, action="count"
+)
+
+args = parser.parse_args()
 
 
 # initial data
@@ -17,14 +26,14 @@ os.system("color")
 # solutions = [("10.", 1), ("0.1", 1), (".11", 1), ("...", 0)]
 
 # sem task 4
-seen_examples = [2, 15, 3, 14, 12, 6, 8, 10, 4, 13, 9, 11]
-amount = 4
-solutions = [("10..", 1), ("..01", 1), ("....", 0)]
+# seen_examples = [2, 15, 3, 14, 12, 6, 8, 10, 4, 13, 9, 11]
+# amount = 4
+# solutions = [("10..", 1), ("..01", 1), ("....", 0)]
 
 # my
-# seen_examples = [14, 4, 6, 13, 3, 11, 5, 8, 5, 7, 2, 9]
-# amount= 4
-# solutions = [('..01',1), ('00..', 1), ('....',0)]
+seen_examples = [14, 4, 6, 13, 3, 11, 5, 8, 5, 7, 2, 9]
+amount= 4
+solutions = [('..01',1), ('00..', 1), ('....',0)]
 
 
 def gen_headers():
@@ -100,34 +109,41 @@ print(colored("S+ : ", "blue"), S_plus)
 print(colored("S- :", "blue"), S_minus)
 
 
-# TODO check hypothises, 'cause they don't seem right
 literals = gen_literal_regex_list()
 f = lambda x: x.count(".")
 sorted(literals, key=f, reverse=True)
 literals = literals[1:]
 print(colored("literals: ", "blue"), literals)
 h = []
+if args.verbose:
+    print()
+while S_plus or S_minus:
+    for idx, literal in enumerate(literals):
+        if args.verbose:
+            print("step {}".format(idx))
+            print("literal: ", literal)
+            print("S+: ", S_plus)
+            print("S-: ", S_minus)
+            print("h: ", h)
 
-for idx, literal in enumerate(literals):
-    if not S_plus or not S_minus:
-        break
-
-    match_minus = [re.match(literal, x) for x in S_minus if re.match(literal, x) is not None]
-    match_plus = [re.match(literal, x) for x in S_plus if re.match(literal, x) is not None]
-    if match_plus and not match_minus:
-        h.append((literal, 1))
-        to_remove = [x.string for x in match_plus]
-        S_plus = list(set(S_plus) - set(to_remove))
-    elif not match_plus and match_minus:
-        h.append((literal, 0))
-        to_remove = [x.string for x in match_minus]
-        S_minus = list(set(S_minus) - set(to_remove))
-    print('step {}'.format(idx))
-    print("literal: ", literal)
-    print("S+: ", S_plus)
-    print("S-: ", S_minus)
-    print("h: ", h)
-
+        match_minus = [
+            re.match(literal, x) for x in S_minus if re.match(literal, x) is not None
+        ]
+        match_plus = [
+            re.match(literal, x) for x in S_plus if re.match(literal, x) is not None
+        ]
+        if match_plus and not match_minus:
+            h.append((literal, 1))
+            to_remove = [x.string for x in match_plus]
+            S_plus = list(set(S_plus) - set(to_remove))
+            break
+        elif not match_plus and match_minus:
+            h.append((literal, 0))
+            to_remove = [x.string for x in match_minus]
+            S_minus = list(set(S_minus) - set(to_remove))
+            break
+if args.verbose:
+    print()
 h.append(solutions[-1])
 print(colored("h: ", "blue"), h)
 
