@@ -2,14 +2,29 @@ import itertools
 from tabulate import tabulate
 import re
 from typing import Iterable
+import os
+from termcolor import colored
+import copy
+
+os.system("color")
+
 
 # initial data
-seen_examples = [14, 4, 6, 13, 3, 11, 5, 8, 5, 7, 2, 9]
+
+# sem task 3
 # seen_examples = [1, 3, 4, 6, 8]
-amount= 4
 # amount = 3
-solutions = [('..01',1), ('00..', 1), ('....',0)]
 # solutions = [("10.", 1), ("0.1", 1), (".11", 1), ("...", 0)]
+
+# sem task 4
+seen_examples = [2, 15, 3, 14, 12, 6, 8, 10, 4, 13, 9, 11]
+amount = 4
+solutions = [("10..", 1), ("..01", 1), ("....", 0)]
+
+# my
+# seen_examples = [14, 4, 6, 13, 3, 11, 5, 8, 5, 7, 2, 9]
+# amount= 4
+# solutions = [('..01',1), ('00..', 1), ('....',0)]
 
 
 def gen_headers():
@@ -34,6 +49,25 @@ def gen_literal_regex_list():
     return literal_regex_list
 
 
+def prettify(input_table):
+    """colors output"""
+    tbl = copy.deepcopy(input_table)
+    for idx, row in enumerate(tbl):
+        if not (idx + 1 in seen_examples):
+            continue
+        new_row = list(
+            map(
+                lambda x: colored(x if x is not None else "", "green")
+                if row[amount]
+                else colored(x if x is not None else "", "red"),
+                row,
+            )
+        )
+        tbl[idx] = tuple(new_row)
+    return tbl
+
+
+print(colored("soltuions: ", "blue"), solutions)
 seen_examples.sort()
 
 table = list(itertools.product([0, 1], repeat=amount))
@@ -62,8 +96,8 @@ for idx, row in enumerate(table):
     else:
         S_minus.append(to_string(row[:amount]))
 
-print("S+ : ", S_plus)
-print("S- :", S_minus)
+print(colored("S+ : ", "blue"), S_plus)
+print(colored("S- :", "blue"), S_minus)
 
 
 # TODO check hypothises, 'cause they don't seem right
@@ -71,6 +105,7 @@ literals = gen_literal_regex_list()
 f = lambda x: x.count(".")
 sorted(literals, key=f, reverse=True)
 literals = literals[1:]
+print(colored("literals: ", "blue"), literals)
 h = []
 for idx, row in enumerate(table):
     if not (idx + 1 in seen_examples):
@@ -91,7 +126,7 @@ for idx, row in enumerate(table):
             h.append((literal, 0))
             S_minus.remove(bool_row)
 h.append(solutions[-1])
-print("h: ", h)
+print(colored("h: ", "blue"), h)
 
 for idx, row in enumerate(table):
     is_seen = idx + 1 in seen_examples
@@ -111,10 +146,15 @@ for idx, row in enumerate(table):
 
 print(
     tabulate(
-        table,
+        prettify(table),
         headers=gen_headers(),
         tablefmt="pretty",
-        showindex=list(range(1, 2 ** amount + 1)),
+        showindex=list(
+            map(
+                lambda x: colored(x, "yellow") if x in seen_examples else x,
+                range(1, 2 ** amount + 1),
+            )
+        ),
     )
 )
 
