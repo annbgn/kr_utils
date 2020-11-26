@@ -107,24 +107,27 @@ sorted(literals, key=f, reverse=True)
 literals = literals[1:]
 print(colored("literals: ", "blue"), literals)
 h = []
-for idx, row in enumerate(table):
-    if not (idx + 1 in seen_examples):
-        continue
-    for literal in literals:
-        if not S_plus or not S_minus:
-            break
-        templates_so_far = [x[0] for x in h]
-        if literal in templates_so_far:
-            break  # prevent duplicates +  preserve order
 
-        bool_row = to_string(row[:amount])
-        mtch = re.match(literal, bool_row)
-        if bool_row in S_plus and not bool_row in S_minus:
-            h.append((literal, 1))
-            S_plus.remove(bool_row)
-        elif not bool_row in S_plus and bool_row in S_minus:
-            h.append((literal, 0))
-            S_minus.remove(bool_row)
+for idx, literal in enumerate(literals):
+    if not S_plus or not S_minus:
+        break
+
+    match_minus = [re.match(literal, x) for x in S_minus if re.match(literal, x) is not None]
+    match_plus = [re.match(literal, x) for x in S_plus if re.match(literal, x) is not None]
+    if match_plus and not match_minus:
+        h.append((literal, 1))
+        to_remove = [x.string for x in match_plus]
+        S_plus = list(set(S_plus) - set(to_remove))
+    elif not match_plus and match_minus:
+        h.append((literal, 0))
+        to_remove = [x.string for x in match_minus]
+        S_minus = list(set(S_minus) - set(to_remove))
+    print('step {}'.format(idx))
+    print("literal: ", literal)
+    print("S+: ", S_plus)
+    print("S-: ", S_minus)
+    print("h: ", h)
+
 h.append(solutions[-1])
 print(colored("h: ", "blue"), h)
 
