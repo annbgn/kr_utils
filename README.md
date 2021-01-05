@@ -20,5 +20,5 @@ note that second one allows `--verbose` and `-v` flags to show how set __h__ is 
 
 ### examples
 
-- [one](https://github.com/annbgn/kr_utils/blob/master/2_1.png)
-- [two](https://github.com/annbgn/kr_utils/blob/master/2_2.png)
+![](https://github.com/annbgn/kr_utils/blob/master/2_1.png)
+![](https://github.com/annbgn/kr_utils/blob/master/2_2.png)
